@@ -20,6 +20,8 @@
           return state;
       }
     }
+    
+`dispatch` 是用來觸發狀態改變的函數，裡面帶入 action 物件。
 
 ## 2. 用 Context + useReducer 共享狀態示範
 
