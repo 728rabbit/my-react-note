@@ -78,3 +78,84 @@
     }
     
     export default App;
+
+## 3.一個用 **Context + useReducer** 做的簡易 Todo List 範例，包含新增、刪除、切換完成狀態三大功能
+
+    import React, { createContext, useReducer, useContext, useState } from 'react';
+    
+    // 1. 建立 Context
+    const TodoContext = createContext();
+    
+    // 2. 定義 reducer，管理 todo 狀態
+    function todoReducer(state, action) {
+      switch (action.type) {
+        case 'add':
+          return [...state, { id: Date.now(), text: action.payload, completed: false }];
+        case 'toggle':
+          return state.map(todo =>
+            todo.id === action.payload ? { ...todo, completed: !todo.completed } : todo
+          );
+        case 'delete':
+          return state.filter(todo => todo.id !== action.payload);
+        default:
+          throw new Error('未知的 action');
+      }
+    }
+    
+    // 3. Provider 包裹子元件並提供 state 和 dispatch
+    function TodoProvider({ children }) {
+      const [state, dispatch] = useReducer(todoReducer, []);
+    
+      return (
+        <TodoContext.Provider value={{ state, dispatch }}>
+          {children}
+        </TodoContext.Provider>
+      );
+    }
+    
+    // 4. TodoList 元件，使用 Context 讀寫 todo 狀態
+    function TodoList() {
+      const { state, dispatch } = useContext(TodoContext);
+      const [input, setInput] = useState('');
+    
+      const handleAdd = () => {
+        if (!input.trim()) return;
+        dispatch({ type: 'add', payload: input.trim() });
+        setInput('');
+      };
+    
+      return (
+        <div>
+          <h2>Todo List (Context + useReducer)</h2>
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="輸入任務"
+          />
+          <button onClick={handleAdd}>新增</button>
+    
+          <ul>
+            {state.map(todo => (
+              <li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : '' }}>
+                {todo.text}
+                <button onClick={() => dispatch({ type: 'toggle', payload: todo.id })}>
+                  {todo.completed ? '還原' : '完成'}
+                </button>
+                <button onClick={() => dispatch({ type: 'delete', payload: todo.id })}>刪除</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    
+    // 5. App 組件
+    function App() {
+      return (
+        <TodoProvider>
+          <TodoList />
+        </TodoProvider>
+      );
+    }
+    
+    export default App;
