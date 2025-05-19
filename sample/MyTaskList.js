@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function MyList() {
+function MyTaskList() {
     const [task, setTask] = useState('');
     const [tasks, setTasks] = useState([]); 
 
@@ -57,4 +57,4 @@ function TaskItem({ task, index, onToggle, onDelete }) {
   );
 }
 
-export default MyList;
+export default MyTaskList;
